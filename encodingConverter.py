@@ -1,5 +1,6 @@
 import os
 import glob
+import shutil
 
 filesPath = '/usr/prj/' #example '/usr/prj/'
 saveAsPath = '/usr/prj_new/' #example '/usr/prj_new/'
@@ -8,8 +9,9 @@ originEncoding = 'gbk' #current file encoding 'gbk' for Chineses and 'sjis' for 
 targetEncoding = 'utf-8-sig' #convert into utf-8 with signature
 
 for ft in fileType:
-    fileDirs = glob.glob(filesPath + '**/*' + ft, recursive = True)
+    fileDirs = glob.glob(filesPath + '/**/*' + ft, recursive = True)
     for path in fileDirs:
+        path = os.path.abspath(path)
         targetDir = os.path.abspath(saveAsPath + os.path.relpath(path, start=filesPath))
         if not os.path.exists(os.path.dirname(targetDir)):
             os.makedirs(os.path.dirname(targetDir))
@@ -21,5 +23,7 @@ for ft in fileType:
                 d.write(data)
             print('Convert {0} from {1} into {2}'.format(os.path.basename(path), originEncoding, targetEncoding))
         except UnicodeDecodeError:
-            print(path + ' file encoding seem not to be \'' + originEncoding + '\'')
-print('Save all files into {0}'.format(saveAsPath))
+            print(('{0} file encoding seem not to be \'{1}\'').format(path, originEncoding))
+            shutil.copyfile(path, targetDir)
+            print('copy {0} into {1} without encoding conversion'.format(path, targetDir))
+print('Save all files into {0}'.format(os.path.abspath(saveAsPath)))
